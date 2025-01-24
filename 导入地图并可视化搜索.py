@@ -1,6 +1,8 @@
-import heapq
+import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import heapq
+
 
 # 八邻域搜索
 #  ------------------------------------------>
@@ -58,8 +60,8 @@ def distance(a, b, method='euclidean'):
 def a_in_list(a:Node, node_list : list[Node]):
     for node in node_list:
         if a.same_point(node):
-            return node
-    return None
+            return True
+    return False
 
 def a_star_search(start, goal, grid, threshold=np.inf):
     open_list = []
@@ -74,21 +76,15 @@ def a_star_search(start, goal, grid, threshold=np.inf):
 
     cnt = 0
     while open_list:
-        # print(cnt)
-        cnt += 1
         current_node = heapq.heappop(open_list)
+        # print(cnt)
         print(f"{cnt} select: ", current_node)
+        cnt += 1
         if current_node.same_point(goal_node):
             path = []
             while current_node:
                 path.append(current_node.position)
                 current_node = current_node.parent
-            print('open list =====================================================\n')
-            for node in open_list:
-                print(node)
-            print('closed list ===================================================\n', closed_list)
-            for node in closed_list:
-                print(node)
             return path[::-1]
 
         closed_list.append(current_node)
@@ -99,58 +95,50 @@ def a_star_search(start, goal, grid, threshold=np.inf):
                 continue
             if grid[neighbor_position[0]][neighbor_position[1]] >= threshold:
                 continue
-            cost = grid[neighbor_position[0], neighbor_position[1]]
+            cost = grid[neighbor_position[0]][neighbor_position[1]] + 1.0
             neighbor_node = Node(neighbor_position[0], neighbor_position[1], cost, current_node)
 
-            old_node = a_in_list(neighbor_node, closed_list)
-            if old_node is None:
-                pass
-            elif old_node.g >= neighbor_node.g:
+            if a_in_list(neighbor_node, closed_list):
                 continue
-            else:
-                closed_list.remove(old_node)
-
-
-            old_node = a_in_list(neighbor_node, open_list)
-            if old_node is None:
-                pass
-            elif old_node.g >= neighbor_node.g:
-                continue
-            else:
-                open_list.remove(old_node)
 
             neighbor_node.g = current_node.g + neighbor_node.cost
             neighbor_node.h = distance(neighbor_node.position, goal_node.position, 'manhattan')
-            neighbor_node.f = 1.0 * neighbor_node.g  +  1.0 * neighbor_node.h
+            neighbor_node.f = 1.0 * neighbor_node.g  +  0.0 * neighbor_node.h
 
-            # if not any(node.g <= neighbor_node.g for node in open_list):
-            #     heapq.heappush(open_list, neighbor_node)
-            heapq.heappush(open_list, neighbor_node)
-            # print(neighbor_node)
+            if not any(node == neighbor_node and node.g < neighbor_node.g for node in open_list):
+                heapq.heappush(open_list, neighbor_node)
+            # print("expand: " ,  neighbor_node)
             # print(open_list)
+
     return None
 
 
-# 示例
+# # 示例
 grid = np.array([
     [0, 0, 0, 0, 1],  # 0
     [9, 0, 9, 0, 1],  # 1
     [0, 0, 0, 0, 1],  # 2
-    [0, 2, 4, 1, 0],  # 3
-    [10, 0, 10, 0, 0]   # 4
+    [0, 9, 4, 1, 0],  # 3
+    [9, 0, 0, 0, 0]   # 4
 ])
-grid += 1
 
 # grid = np.zeros((6, 6))
-start = (0, 0)
-goal = (4, 1)
+start = [10, 10]
+goal = [150, 200]
 
-path = a_star_search(start, goal, grid, 100)
-if not path is None:
-    for i in path:
-        temp = i[0]
-        i[0] = i[1]
-        i[1] = temp
+map_1 = cv2.imread('./map_1_gray.jpg')
+map_1 = cv2.cvtColor(map_1, cv2.COLOR_BGR2GRAY)
+map_1 = 255 - map_1
+
+map_1_list = np.array(map_1.tolist())
+
+grid = map_1_list
+print(grid.shape)
+path = a_star_search(start, goal, grid, np.inf)
+for i in path:
+    temp = i[0]
+    i[0] = i[1]
+    i[1] = temp
 
 print("Path:", path)
 
@@ -160,13 +148,14 @@ fig, ax = plt.subplots()
 
 # 绘制栅格地图
 # ax.imshow(grid, cmap='Greys', origin='upper')
-cmap = plt.get_cmap('viridis')
+# cmap = plt.get_cmap('viridis')
+cmap = plt.get_cmap('summer')
 ax.imshow(grid, cmap=cmap, interpolation='nearest')
 # ax.invert_yaxis()  # 反转Y坐标轴
 # 绘制路径
 path_x, path_y = zip(*path)
-# ax.plot(path_x, path_y, color='blue', marker='o', linestyle='-', linewidth=2, markersize=8)
-ax.plot(path_x, path_y, color='blue', linestyle='-', linewidth=2)
+# ax.plot(path_x, path_y, color='blue', marker='o', linestyle='-', linewidth=3, markersize=1)
+ax.plot(path_x, path_y, color='blue', linestyle='-', linewidth=1)
 # # 设置轴的范围
 # ax.set_xlim(-0.5, grid.shape[1] - 0.5)
 # ax.set_ylim(-0.5, grid.shape[0] - 0.5)
@@ -178,7 +167,7 @@ ax.plot(path_x, path_y, color='blue', linestyle='-', linewidth=2)
 # ax.set_yticks(np.arange(0, grid.shape[0], 1), minor=False)
 
 # 绘制网格线
-ax.grid(which='minor', color='black', linestyle='-', linewidth=1)
+# ax.grid(which='minor', color='black', linestyle='-', linewidth=0)
 
 # 去掉轴的标签
 ax.set_xticklabels([])
