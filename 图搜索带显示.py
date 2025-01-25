@@ -56,16 +56,19 @@ def distance(a, b, method='euclidean'):
 
 
 def a_in_list(a:Node, node_list : list[Node]):
-    for node in node_list:
+    for i in range(0, len(node_list)):
+        node = node_list[i]
         if a.same_point(node):
-            return node
-    return None
+            return i, node
+    return -1, None
 
-def a_star_search(start, goal, grid, threshold=np.inf):
+def a_star_search(start, goal, grid, threshold=np.inf, w_g = 1.0, w_h = 1.0, dis_method='euclidean', search_method='four'):
     open_list = []
     closed_list = []
     grid_shape = grid.shape
     start_node = Node(start[0], start[1], grid[start[0]][start[1]])
+    start_node.h = distance(start_node.position, start_node.position, dis_method)
+    start_node.f = start_node.h
     goal_node = Node(goal[0], goal[1], grid[goal[0]][goal[1]])
     print('start:', start_node)
     print('goal:', goal_node)
@@ -77,51 +80,86 @@ def a_star_search(start, goal, grid, threshold=np.inf):
         # print(cnt)
         cnt += 1
         current_node = heapq.heappop(open_list)
-        print(f"{cnt} select: ", current_node)
+        # print(f"{cnt} select: ", current_node)
         if current_node.same_point(goal_node):
             path = []
             while current_node:
                 path.append(current_node.position)
                 current_node = current_node.parent
-            print('open list =====================================================\n')
-            for node in open_list:
-                print(node)
-            print('closed list ===================================================\n', closed_list)
-            for node in closed_list:
-                print(node)
+            # print('open list =====================================================\n')
+            # for node in open_list:
+            #     print(node)
+            # print('closed list ===================================================\n', closed_list)
+            # for node in closed_list:
+            #     print(node)
             return path[::-1]
 
         closed_list.append(current_node)
 
-        for dx, dy in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
-            neighbor_position = [current_node.position[0] + dx, current_node.position[1] + dy]
+        # 八邻域搜索
+        #  ------------------------------------------>
+        #  |  x(i-1, j-1)   x(x, j-1)   x(i+1, j-1)  |      0   1   2
+        #  |  x(i-1, j)     x(i, j)     x(i+1, j)    |      7   X   3
+        #  |  x(i-1, j+1)   x(i, j+1)   x(i+1, j+1)  |      6   5   4
+        #  <------------------------------------------
+
+        # 四邻域搜索
+        #  ------------------------------------------>
+        #  |                x(x, j-1)                |          0
+        #  |  x(i-1, j)     x(i, j)     x(i+1, j)    |      3   X   1
+        #  |                x(i, j+1)                |          2
+        #  <------------------------------------------
+
+        if search_method == 'eight':
+            search_list_dir = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
+        elif search_method == 'four':
+            search_list_dir = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+        else:
+            search_list_dir = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+        # for dx, dy in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
+        for di, dj in search_list_dir:
+            neighbor_position = [current_node.position[0] + di, current_node.position[1] + dj]
+            # 超出地图范围则忽略
             if not (0 <= neighbor_position[0] < grid_shape[0] and 0 <= neighbor_position[1] < grid_shape[1]):
-                continue
-            if grid[neighbor_position[0]][neighbor_position[1]] >= threshold:
                 continue
             cost = grid[neighbor_position[0], neighbor_position[1]]
             neighbor_node = Node(neighbor_position[0], neighbor_position[1], cost, current_node)
-
-            old_node = a_in_list(neighbor_node, closed_list)
-            if old_node is None:
-                pass
-            elif old_node.g >= neighbor_node.g:
-                continue
-            else:
-                closed_list.remove(old_node)
-
-
-            old_node = a_in_list(neighbor_node, open_list)
-            if old_node is None:
-                pass
-            elif old_node.g >= neighbor_node.g:
-                continue
-            else:
-                open_list.remove(old_node)
-
             neighbor_node.g = current_node.g + neighbor_node.cost
-            neighbor_node.h = distance(neighbor_node.position, goal_node.position, 'manhattan')
-            neighbor_node.f = 1.0 * neighbor_node.g  +  1.0 * neighbor_node.h
+            neighbor_node.h = distance(neighbor_node.position, goal_node.position, dis_method)
+            # neighbor_node.h = distance(neighbor_node.position, goal_node.position, 'diagonal')
+            neighbor_node.f = w_g * neighbor_node.g + w_h * neighbor_node.h
+            # 超过阈值视为障碍物，忽略
+            if cost >= threshold:
+                continue
+
+            n_index, old_node = a_in_list(neighbor_node, open_list)
+            if n_index == -1:
+                pass
+            # elif old_node.g > neighbor_node.g:
+            #     continue
+            # else:
+            #     open_list.remove(old_node)
+            elif neighbor_node.g < old_node.g:
+                del open_list[n_index]
+                # open_list.remove(old_node)
+            else:
+                continue
+            # elif not old_node.g > neighbor_node.g:
+            #     open_list.remove(old_node)
+            # else:
+            #     continue
+
+            n_index, old_node = a_in_list(neighbor_node, closed_list)
+            if n_index == -1:
+                pass
+            # elif old_node.g > neighbor_node.g:
+            #     continue
+            # else:
+            #     closed_list.remove(old_node)
+            elif neighbor_node.g < old_node.g:
+                del open_list[n_index]
+            else:
+                continue
 
             # if not any(node.g <= neighbor_node.g for node in open_list):
             #     heapq.heappush(open_list, neighbor_node)

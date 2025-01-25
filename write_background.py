@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 
 # 设置图片的宽度、高度和通道数（3表示彩色图像，1表示灰度图像）
-width = 400
-height = 400
+width = 100
+height = 100
 channels = 3
 
 # 创建一个纯白图片

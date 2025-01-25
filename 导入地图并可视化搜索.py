@@ -60,8 +60,8 @@ def distance(a, b, method='euclidean'):
 def a_in_list(a:Node, node_list : list[Node]):
     for node in node_list:
         if a.same_point(node):
-            return True
-    return False
+            return node
+    return None
 
 def a_star_search(start, goal, grid, threshold=np.inf):
     open_list = []
@@ -76,40 +76,74 @@ def a_star_search(start, goal, grid, threshold=np.inf):
 
     cnt = 0
     while open_list:
-        current_node = heapq.heappop(open_list)
         # print(cnt)
-        print(f"{cnt} select: ", current_node)
         cnt += 1
+        current_node = heapq.heappop(open_list)
+        print(f"{cnt} select: ", current_node)
         if current_node.same_point(goal_node):
             path = []
             while current_node:
                 path.append(current_node.position)
                 current_node = current_node.parent
+            print('open list =====================================================\n')
+            for node in open_list:
+                print(node)
+            print('closed list ===================================================\n', closed_list)
+            for node in closed_list:
+                print(node)
             return path[::-1]
 
         closed_list.append(current_node)
+        # 八邻域搜索
+        #  ------------------------------------------>
+        #  |  x(i-1, j-1)   x(x, j-1)   x(i+1, j-1)  |      0   1   2
+        #  |  x(i-1, j)     x(i, j)     x(i+1, j)    |      7   X   3
+        #  |  x(i-1, j+1)   x(i, j+1)   x(i+1, j+1)  |      6   5   4
+        #  <------------------------------------------
 
+        # 四邻域搜索
+        #  ------------------------------------------>
+        #  |                x(x, j-1)                |          0
+        #  |  x(i-1, j)     x(i, j)     x(i+1, j)    |      3   X   1
+        #  |                x(i, j+1)                |          2
+        #  <------------------------------------------
         for dx, dy in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
+        # for dx, dy in [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]:
             neighbor_position = [current_node.position[0] + dx, current_node.position[1] + dy]
             if not (0 <= neighbor_position[0] < grid_shape[0] and 0 <= neighbor_position[1] < grid_shape[1]):
                 continue
             if grid[neighbor_position[0]][neighbor_position[1]] >= threshold:
                 continue
-            cost = grid[neighbor_position[0]][neighbor_position[1]] + 1.0
+            cost = grid[neighbor_position[0], neighbor_position[1]]
             neighbor_node = Node(neighbor_position[0], neighbor_position[1], cost, current_node)
 
-            if a_in_list(neighbor_node, closed_list):
+            old_node = a_in_list(neighbor_node, closed_list)
+            if old_node is None:
+                pass
+            elif old_node.g >= neighbor_node.g:
                 continue
+            else:
+                closed_list.remove(old_node)
+
+
+            old_node = a_in_list(neighbor_node, open_list)
+            if old_node is None:
+                pass
+            elif old_node.g >= neighbor_node.g:
+                continue
+            else:
+                open_list.remove(old_node)
 
             neighbor_node.g = current_node.g + neighbor_node.cost
             neighbor_node.h = distance(neighbor_node.position, goal_node.position, 'manhattan')
-            neighbor_node.f = 1.0 * neighbor_node.g  +  0.0 * neighbor_node.h
+            # neighbor_node.h = distance(neighbor_node.position, goal_node.position, 'diagonal')
+            neighbor_node.f = 1.0 * neighbor_node.g  +  1.0 * neighbor_node.h
 
-            if not any(node == neighbor_node and node.g < neighbor_node.g for node in open_list):
-                heapq.heappush(open_list, neighbor_node)
-            # print("expand: " ,  neighbor_node)
+            # if not any(node.g <= neighbor_node.g for node in open_list):
+            #     heapq.heappush(open_list, neighbor_node)
+            heapq.heappush(open_list, neighbor_node)
+            # print(neighbor_node)
             # print(open_list)
-
     return None
 
 
@@ -124,9 +158,9 @@ grid = np.array([
 
 # grid = np.zeros((6, 6))
 start = [10, 10]
-goal = [150, 200]
+goal = [50, 50]
 
-map_1 = cv2.imread('./map_1_gray.jpg')
+map_1 = cv2.imread('./map3.jpg')
 map_1 = cv2.cvtColor(map_1, cv2.COLOR_BGR2GRAY)
 map_1 = 255 - map_1
 

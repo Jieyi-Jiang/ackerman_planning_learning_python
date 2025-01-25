@@ -1,20 +1,23 @@
 import cv2
 
 # 读取图片
-image = cv2.imread('img_1.png')
+image = cv2.imread('labyrinth_2.png')
 negative_image = image.copy()
 # 检查图片是否成功读取
 if image is None:
     print("Error: Could not open or find the image.")
 else:
     # 计算负片效果
+
+    # image = 255 - image
     for i in range(negative_image.shape[0]):
         for j in range(negative_image.shape[1]):
-            threshold = 200
+            threshold = 100
             if negative_image[i, j][0] > threshold:
-                negative_image[i, j] = (41, 40, 41)
+                # negative_image[i, j] = (41, 40, 41)
+                negative_image[i, j] = 0
             elif negative_image[i, j][0] < threshold:
-                negative_image[i, j] = 255 - negative_image[i, j]
+                negative_image[i, j] = 255
 
     # 显示原始图片和负片效果图片
     # cv2.imshow('Original Image', image)
