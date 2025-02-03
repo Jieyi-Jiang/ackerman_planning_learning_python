@@ -266,8 +266,8 @@ map_1_list = np.array(map_1.tolist())
 map_1_dilate_list = np.array(map_1_dilate.tolist())
 grid_2_dilate = map_1_dilate_list + 1
 grid_2 = map_1_list + 1  # 必须要 +1，防止存在花销为 0 的情况
-start_2 = [50, 50]
-goal_2 = [90, 80]
+start_2 = [5, 5]
+goal_2 = [95, 95]
 # goal_2 = [35, 75]
 
 map_3 = cv2.imread('./labyrinth_3_small.jpg')
@@ -301,7 +301,7 @@ goal = goal_2
 
 print(grid.shape)
 start_time = time.time()
-open_area, path = a_star_search(start, goal, grid_dilate, 40, 0.6, 1.0, 'euclidean', 'eight')
+open_area, path = a_star_search(start, goal, grid_dilate, 40, 0.5, 1.0, 'euclidean', 'eight')
 open_area *= 200
 # grid += open_area
 # path = a_star_search(start, goal, grid, 30, 1.0, 1.0, 'diagonal', 'eight')
@@ -340,7 +340,7 @@ if not path is None:
     # 设置图片分辨率
     # plt.figure(dpi=800)
     # 创建图形和轴
-    fig, ax = plt.subplots(figsize=(7, 7), dpi=150)
+    fig, ax = plt.subplots(figsize=(8, 8), dpi=200)
     # 绘制栅格地图
     # ax.imshow(grid, cmap='Greys', origin='upper')
     # cmap = plt.get_cmap('viridis')
