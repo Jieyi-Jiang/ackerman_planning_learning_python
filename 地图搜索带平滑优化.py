@@ -71,10 +71,17 @@ def a_star_search(start, goal, grid, threshold=np.inf, w_g = 1.0, w_h = 1.0, dis
     closed_list = []
     grid_shape = grid.shape
     open_area = np.zeros(grid_shape, dtype=np.uint8)
+    closed_area = np.zeros(grid_shape, dtype=np.uint8)
     start_node = Node(start[0], start[1], grid[start[0]][start[1]])
     start_node.h = distance(start_node.position, start_node.position, dis_method)
     start_node.f = start_node.h
     goal_node = Node(goal[0], goal[1], grid[goal[0]][goal[1]])
+    if search_method == 'eight':
+        search_list_dir = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
+    elif search_method == 'four':
+        search_list_dir = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+    else:
+        search_list_dir = [(0, -1), (1, 0), (0, 1), (-1, 0)]
     print('start:', start_node)
     print('goal:', goal_node)
     print(f"w_g: {w_g}, w_h:{w_h}, dis_method: {dis_method}, search_method: {search_method}")
@@ -99,10 +106,10 @@ def a_star_search(start, goal, grid, threshold=np.inf, w_g = 1.0, w_h = 1.0, dis
             # print('closed list ===================================================\n', closed_list)
             # for node in closed_list:
             #     print(node)
-            return open_area, path[::-1]
+            return open_area, closed_area, path[::-1]
 
         closed_list.append(current_node)
-
+        closed_area[current_node.position[0], current_node.position[1]] = 1
         # 八邻域搜索
         #  ------------------------------------------>
         #  |  x(i-1, j-1)   x(x, j-1)   x(i+1, j-1)  |      0   1   2
@@ -117,12 +124,6 @@ def a_star_search(start, goal, grid, threshold=np.inf, w_g = 1.0, w_h = 1.0, dis
         #  |                x(i, j+1)                |          2
         #  <------------------------------------------
 
-        if search_method == 'eight':
-            search_list_dir = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
-        elif search_method == 'four':
-            search_list_dir = [(0, -1), (1, 0), (0, 1), (-1, 0)]
-        else:
-            search_list_dir = [(0, -1), (1, 0), (0, 1), (-1, 0)]
         # for dx, dy in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
         for di, dj in search_list_dir:
             neighbor_position = [current_node.position[0] + di, current_node.position[1] + dj]
@@ -301,7 +302,7 @@ goal = goal_2
 
 print(grid.shape)
 start_time = time.time()
-open_area, path = a_star_search(start, goal, grid_dilate, 40, 0.6, 1.0, 'euclidean', 'eight')
+open_area, closed_area, path = a_star_search(start, goal, grid_dilate, 40, 0.6, 1.0, 'euclidean', 'eight')
 open_area *= 200
 # grid += open_area
 # path = a_star_search(start, goal, grid, 30, 1.0, 1.0, 'diagonal', 'eight')
@@ -341,6 +342,8 @@ if not path is None:
     # plt.figure(dpi=800)
     # 创建图形和轴
     fig, ax = plt.subplots(figsize=(8, 8), dpi=200)
+    print(fig)
+    print(ax)
     # 绘制栅格地图
     # ax.imshow(grid, cmap='Greys', origin='upper')
     # cmap = plt.get_cmap('viridis')
@@ -351,6 +354,7 @@ if not path is None:
     # ax.imshow(grid, cmap=cmap, interpolation='none')
     cmap = plt.get_cmap('summer')
     masked1 = np.ma.masked_where(open_area == 0, open_area)
+    masked2 = np.ma.masked_where(closed_area == 0, closed_area)
     # print(masked1)
     # ax.imshow(open_area, cmap=cmap, interpolation='nearest', alpha=0.3)
     ax.imshow(masked1, cmap=cmap, interpolation='nearest', alpha=0.5)

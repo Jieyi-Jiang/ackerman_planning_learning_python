@@ -385,7 +385,7 @@ p, li { white-space: pre-wrap; }
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>180</height>
+              <height>200</height>
              </size>
             </property>
             <property name="title">
@@ -409,21 +409,28 @@ p, li { white-space: pre-wrap; }
                <x>10</x>
                <y>20</y>
                <width>241</width>
-               <height>151</height>
+               <height>181</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
-               <widget class="QPushButton" name="btn_dilate">
+               <widget class="QPushButton" name="btn_inverse">
                 <property name="text">
-                 <string>膨胀处理</string>
+                 <string>黑白反转</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="btn_inverse">
+               <widget class="QPushButton" name="btn_downsampling">
                 <property name="text">
-                 <string>黑白反转</string>
+                 <string>降采样</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btn_dilate">
+                <property name="text">
+                 <string>膨胀处理</string>
                 </property>
                </widget>
               </item>
@@ -569,13 +576,6 @@ p, li { white-space: pre-wrap; }
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_9">
-              <item>
-               <widget class="QPushButton" name="btn_set_src_dst">
-                <property name="text">
-                 <string>设置起点终点</string>
-                </property>
-               </widget>
-              </item>
               <item>
                <widget class="QGroupBox" name="groupBox_3">
                 <property name="title">
@@ -932,6 +932,9 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item>
                  <widget class="QComboBox" name="combo_distance_method">
+                  <property name="currentIndex">
+                   <number>0</number>
+                  </property>
                   <item>
                    <property name="text">
                     <string>欧几里得距离（Euclidean）</string>
