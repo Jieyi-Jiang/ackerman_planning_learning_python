@@ -54,7 +54,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="function_select_tab_1">
         <attribute name="title">
@@ -308,6 +308,9 @@ p, li { white-space: pre-wrap; }
                      <widget class="QSpinBox" name="spin_bin_thr">
                       <property name="maximum">
                        <number>255</number>
+                      </property>
+                      <property name="value">
+                       <number>100</number>
                       </property>
                      </widget>
                     </item>
@@ -572,7 +575,7 @@ p, li { white-space: pre-wrap; }
                <x>9</x>
                <y>19</y>
                <width>241</width>
-               <height>211</height>
+               <height>201</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -743,13 +746,6 @@ p, li { white-space: pre-wrap; }
              <layout class="QVBoxLayout" name="verticalLayout_13">
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_16">
-                <item>
-                 <widget class="QPushButton" name="btn_set_search_param">
-                  <property name="text">
-                   <string>设置参数</string>
-                  </property>
-                 </widget>
-                </item>
                 <item>
                  <widget class="QPushButton" name="btn_start_search">
                   <property name="text">
@@ -1021,29 +1017,10 @@ p, li { white-space: pre-wrap; }
            <x>0</x>
            <y>10</y>
            <width>261</width>
-           <height>371</height>
+           <height>341</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_14">
-          <item>
-           <widget class="QPushButton" name="btn_set_optimal_param">
-            <property name="minimumSize">
-             <size>
-              <width>250</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>99999</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>设置参数</string>
-            </property>
-           </widget>
-          </item>
           <item>
            <widget class="QPushButton" name="btn_smooth_path">
             <property name="text">
@@ -1056,7 +1033,7 @@ p, li { white-space: pre-wrap; }
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>200</height>
+              <height>210</height>
              </size>
             </property>
             <property name="title">
@@ -1293,7 +1270,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_20">
                   <item>
-                   <widget class="QDoubleSpinBox" name="spin_constrain_position">
+                   <widget class="QDoubleSpinBox" name="spin_position_constrain">
                     <property name="minimumSize">
                      <size>
                       <width>55</width>
@@ -1318,7 +1295,7 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSlider" name="slider_constrain_position">
+                   <widget class="QSlider" name="slider_positionr_constrain">
                     <property name="maximum">
                      <number>101</number>
                     </property>

@@ -260,6 +260,7 @@ goal_1 = [3, 3]
 map_1 = cv2.imread('./map3.jpg')
 # map_1 = cv2.imread('./white_image.jpg')
 map_1 = cv2.cvtColor(map_1, cv2.COLOR_BGR2GRAY)
+_, map_1 = cv2.threshold(map_1, 200, 255, cv2.THRESH_BINARY)
 map_1 = 255 - map_1
 kernel = np.ones((2,2), dtype=np.uint8)
 map_1_dilate = cv2.dilate(map_1, kernel, iterations=1)
